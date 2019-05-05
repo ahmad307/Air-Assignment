@@ -1,0 +1,5 @@
+AirAssignment/packages/* linguist-vendored=true
+AirAssignment/AirAssignment/Scripts/* linguist-vendored=true
+Air-Assignment/AirAssignment/AirAssignment/Content/bootstrap.css linguist-vendored=true
+Air-Assignment/AirAssignment/AirAssignment/Content/bootstrap.min.css linguist-vendored=true
+*[.sh,.dll,.xml] linguist-vendored=true

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+<label for="username">Username</label>
+<input name="username" id="username" type="text">
+<label for="password">Password</label>
+<input name="password" id="password" type="password">
+{% csrf_token %}
+<h5 id="login_msg"></h5>
+<button id="login_btn" type="submit">Login</button>
+</body>
+<script
+      src="https://code.jquery.com/jquery-3.4.1.min.js"
+      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+      crossorigin="anonymous"></script>
+<script type="text/javascript">
+    $('#login_btn').on('click', function () {
+        $.ajax({
+            url: '/users/login',
+            type: 'POST',
+            data: {
+                'username': $('#username').val(),
+                'password': $('#password').val(),
+                'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
+            },
+            success: function () {
+                // TODO: Not working
+                Window.location.href = "{% url 'users:register' %}";
+            },
+            error: function (json) {
+                $('#login_msg').val(json['error'])
+            }
+        });
+    });
+</script>
+</html>

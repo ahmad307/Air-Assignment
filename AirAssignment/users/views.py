@@ -1,4 +1,4 @@
-from django.shortcuts import render, HttpResponse, redirect
+from django.shortcuts import render, HttpResponse, Http404
 from users import forms
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
@@ -34,6 +34,7 @@ def login(request):
     if request.method != 'POST':
         return render(request, 'login.html')
 
+    print('login function')
     username = request.POST['username']
     password = request.POST['password']
     user = auth.authenticate(username=username, password=password)
@@ -49,8 +50,7 @@ def login(request):
         else:
             return HttpResponse('Inactive account.')
     else:
-        return HttpResponse(json.dumps({'error': 'Invalid Login Info.'}),
-                            content_type='application/json')
+        return Http404('Invalid Info.')
 
 
 @login_required

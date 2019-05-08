@@ -52,4 +52,4 @@ def login(request):
 @login_required
 def logout(request):
     auth.logout(request)
-    return render(request, 'index.html')
+    return render(request, 'login.html')

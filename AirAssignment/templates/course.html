@@ -135,7 +135,9 @@
           <!-- Page Heading -->
           <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
-            <button data-toggle="modal" data-target="#addAssignmentModal" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-sign-in-alt fa-sm text-white-50"></i> Add Assignment</button>
+            {% if request.session.user_type == 'instructor' %}
+                <button data-toggle="modal" data-target="#addAssignmentModal" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-sign-in-alt fa-sm text-white-50"></i> Add Assignment</button>
+            {% endif %}
           </div>
           <!-- Content Row -->
           <div class="row">
@@ -145,7 +147,7 @@
                 <div class="card-header py-3">
                   <h6 class="m-0 font-weight-bold text-primary">Assignments</h6>
                 </div>
-                <div id="courses_div" class="card-body">
+                <div id="assignments_div" class="card-body">
                     {% for assignment in request.session.assignments %}
                       <a href="#">{{ assignment.name }}</a>
                       <br><br>
@@ -213,15 +215,14 @@
             <label for="assignmentName">Assignment</label>
             <input id="assignmentName" type="text" placeholder="Title" class="form-control"><br>
             <label for="courseName">Course</label>
-            <input id="courseName" type="text" value="{{ course.name }}" class="form-control"><br>
+            <input id="courseName" type="text" value="{{ request.session.course_name }}" class="form-control" readonly><br>
             <label for="assignmentDeadline>">Deadline</label>
             <input id="assignmentDeadline" type="date" class="form-control">
-
             {% csrf_token %}
         </div>
         <div class="modal-footer">
-          <button id="cancelJoin" class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-          <a id="joinCourseBtn" class="btn btn-primary" href="#">Join Course</a>
+          <button id="cancelAdd" class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+          <a id="addAssignmentBtn" class="btn btn-primary" href="#">Add</a>
         </div>
       </div>
     </div>
@@ -239,49 +240,21 @@
 
 </body>
 <script type="text/javascript">
-    function getCourses(){
-        /* Not Used */
-        $.ajax({
-            url: '{% url 'users:get_courses' %}',
-            type: 'GET',
-            data: {'username': '{{ user.username }}'},
-            success: function (json) {
-                console.log(json);
-                let courses = json["courses"];
-                for (let i = 0; i < courses.length; i++){
-                    const hiddenField = "<input id='" + i +"' value='" +
-                        courses[i]['code'] + "' hidden>";
-                    const hField = "<a href='#' id=" + i + ">" + courses[i]['name'] + "</a>";
-                    $('#courses_div').append(hiddenField);
-                    $('#courses_div').append(hField);
-                    $('#courses_div').append("<br><br>");
-                }
-            },
-            error: function () {
-                console.log("Error!");
-            }
-        })
-    }
     $(document).ready(function () {
-        $('#joinCourseBtn').on('click', function () {
-            const code = $('#courseCode').val();
-            console.log(code);
+        $('#addAssignmentBtn').on('click', function () {
             $.ajax({
-                url: '{% url "users:join_course" %}',
+                url: '{% url "users:add_assignment" %}',
                 type: 'POST',
                 data: {
-                    'username': '{{ user.username }}',
-                    'course_code': code,
+                    'assignment_name': $('#assignmentName').val(),
+                    'course_name': $('#courseName').val(),
+                    'assignment_deadline': $('#assignmentDeadline').val(),
                     'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
                 },
                 success: function () {
-                    $('#cancelJoin').click();
-                    window.alert('Course Joined.');
-
-                    //TODO: page should reload with new course
-                    // dont forget '' arround url
-                  //  window.location.href = {# {% url "users:index" username=user.username %} #}+
-                    //'&csrfmiddlewaretoken=' + $('input[name="csrfmiddlewaretoken"]').val();
+                    $('#cancelAdd').click();
+                    window.alert('Assignment Added.');
+                    //TODO: page should reload with new assignment
                 },
                 error: function () {
                     window.alert('Invalid Info.');

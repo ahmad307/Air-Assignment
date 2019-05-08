@@ -10,5 +10,7 @@ urlpatterns = [
     url(r'^logout', views.logout, name='logout'),
     url(r'^course', views.course, name='course'),
     url(r'^get_courses', views.get_courses, name='get_courses'),
-    url(r'^join_course', views.join_course, name='join_course')
+    url(r'^join_course', views.join_course, name='join_course'),
+    url(r'^add_assignment', views.add_assignment, name='add_assignment'),
+    url(r'^add_course', views.add_course, name='add_course')
 ]

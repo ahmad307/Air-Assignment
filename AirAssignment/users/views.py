@@ -3,7 +3,7 @@ from users import forms, models
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 import json
-from django.core.serializers.json import DjangoJSONEncoder
+from datetime import datetime
 
 
 def index(request):
@@ -43,8 +43,13 @@ def login(request):
         # Check if user account is active
         if user.is_active:
             auth.login(request, user)
+
             courses = get_courses(user.username)
             request.session['courses'] = list(courses)
+
+            user_type = models.UserProfile.objects.get(user=user).type
+            request.session['user_type'] = user_type
+
             request.session.modified = True
             return render(request, 'index.html')
         else:
@@ -60,8 +65,17 @@ def logout(request):
 
 
 def course(request):
-    assignments = get_assignments(request.GET['course_name'])
+    """Redirects to course page given its name and returns its assignments list."""
+    course_name = request.GET['course_name']
+    assignments = get_assignments(course_name)
+
     request.session['assignments'] = list(assignments)
+    request.session['course_name'] = course_name
+
+    username = request.GET['username']
+    user_type = models.UserProfile.objects.get(user__username=username).type
+    request.session['user_type'] = user_type
+
     request.session.modified = True
     return render(request, 'course.html')
 
@@ -94,13 +108,43 @@ def add_assignment(request):
     assignment_name = request.POST['assignment_name']
     assignment_deadline = request.POST['assignment_deadline']
     course_name = request.POST['course_name']
-    course_in_db = models.Course.objects.get(name__exact=course_name)
-    assignment_in_db = models.Assignment.objects.create(name=assignment_name, deadline=assignment_deadline,
-                                                        course=course_in_db)
-    assignment_in_db.save()
+    course = models.Course.objects.get(name__exact=course_name)
+
+    assignment = models.Assignment.objects.create(
+        name=assignment_name,
+        deadline=datetime.strptime(assignment_deadline, '%Y-%m-%d'),
+        course=course)
+    assignment.save()
+
+    return HttpResponse('ok')
 
 
 def get_assignments(course_name):
     """Returns a list of assignments names given their course."""
     assignments = models.Assignment.objects.all().filter(course__name=course_name).values('name')
     return assignments
+
+
+def get_next_course_code():
+    return int(models.Course.objects.latest('code').code) + 1
+
+
+def add_course(request):
+    user_name = request.POST['username']
+    user_in_db = models.UserProfile.objects.get(user__username=user_name)
+    # Ensure course is added by an instructor
+    if user_in_db.type != 'instructor':
+        return HttpResponse("Invalid User Type")
+
+    course_name = request.POST['course_name']
+    course_code = get_next_course_code()
+
+    if models.Course.objects.all().filter(code=course_code):
+        return HttpResponse('Unique Constraint Violated.')
+
+    course_in_db = models.Course.objects.create(name=course_name, code=course_code)
+    course_in_db.users.add(user_in_db)
+    course_in_db.save()
+
+    return HttpResponse(json.dumps({'code': course_code}),
+                        content_type='application/json')

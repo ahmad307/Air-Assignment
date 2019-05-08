@@ -3,6 +3,7 @@ from users import forms, models
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 import json
+from django.core.serializers.json import DjangoJSONEncoder
 
 
 def index(request):
@@ -30,11 +31,10 @@ def register(request):
     return login(request)
 
 
-def get_courses(username):
-    user = models.User.objects.all().filter(username=username)
-    user = models.UserProfile.objects.all().filter(user=user)
-    print(user.Courses)
-    return user.Courses
+def get_courses(request):
+    username = request.GET['username']
+    courses = models.Course.objects.filter(users__user__username=username).values('name', 'code')
+    return HttpResponse(json.dumps({'courses': list(courses)}), content_type=DjangoJSONEncoder)
 
 
 def login(request):
@@ -49,7 +49,6 @@ def login(request):
         # Check if user account is active
         if user.is_active:
             auth.login(request, user)
-            #courses = get_courses(user.username)
             return render(request, 'index.html')
         else:
             return HttpResponse('Inactive account.')

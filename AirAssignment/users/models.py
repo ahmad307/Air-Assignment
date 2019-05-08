@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from datetime import datetime
 
 
 class UserProfile(models.Model):
@@ -21,16 +22,17 @@ class Course(models.Model):
 
 class Assignment(models.Model):
     name = models.CharField(max_length=50)
-    deadline = models.DateTimeField
-    course = models.ForeignKey(Course, null=True)
+    deadline = models.DateTimeField(auto_now_add=False, editable=True, default=datetime.now())
+    course = models.ForeignKey(Course)
 
     def __str__(self):
         return self.name
 
 
-# TODO: Migrate and add submission to admin.py
 class Submission(models.Model):
     assignment = models.ForeignKey(Assignment)
     user = models.ForeignKey(UserProfile)
-    grade = models.IntegerField
+    grade = models.IntegerField(null=True, blank=True)
 
+    def __str__(self):
+        return self.user.user.username + "'s " + self.assignment.name + " Submission"

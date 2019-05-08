@@ -6,17 +6,17 @@ import json
 
 
 def index(request):
-    return render(request, 'index.html', {'registered': False,
-                                          'user_form': forms.UserForm,
-                                          'profile_form': forms.UserProfileForm},)
+    return render(request, 'index.html')
 
 
 def register(request):
     """Adds a new user by saving and linking User and UserProfile forms."""
+    if request.method != 'POST':
+        return render(request, 'register.html')
+
     user_form = forms.UserForm(request.POST)
     profile_form = forms.UserProfileForm(request.POST)
 
-    registered = False
     if user_form.is_valid() and profile_form.is_valid():
         user = user_form.save()
         user.set_password(user.password)
@@ -25,16 +25,15 @@ def register(request):
         profile = profile_form.save(commit=False)
         profile.User = user
         profile.save()
-        registered = True
 
-    return render(request, 'index.html', {'registered': registered})
+    # Log the new user in
+    return login(request)
 
 
 def login(request):
     if request.method != 'POST':
         return render(request, 'login.html')
 
-    print('login function')
     username = request.POST['username']
     password = request.POST['password']
     user = auth.authenticate(username=username, password=password)
@@ -43,10 +42,7 @@ def login(request):
         # Check if user account is active
         if user.is_active:
             auth.login(request, user)
-            # TODO: Direct user to profile
-            print('Logged the guy in..!')
-            return HttpResponse(json.dumps({'message': 'success'}),
-                                content_type='application/json')
+            return render(request, 'index.html')
         else:
             return HttpResponse('Inactive account.')
     else:

@@ -59,6 +59,12 @@ def logout(request):
     return render(request, 'login.html')
 
 
+def course(request):
+    assignments = get_assignments(request.GET['course_name'])
+    request.session['assignments'] = list(assignments)
+    request.session.modified = True
+    return render(request, 'course.html')
+
 """
 Helper Methods
 """
@@ -81,3 +87,20 @@ def join_course(request):
     course_object.save()
     return HttpResponse(json.dumps({'message': 'success'}),
                         content_type='application/json')
+
+
+def add_assignment(request):
+    """Saves an assignment given its info and course."""
+    assignment_name = request.POST['assignment_name']
+    assignment_deadline = request.POST['assignment_deadline']
+    course_name = request.POST['course_name']
+    course_in_db = models.Course.objects.get(name__exact=course_name)
+    assignment_in_db = models.Assignment.objects.create(name=assignment_name, deadline=assignment_deadline,
+                                                        course=course_in_db)
+    assignment_in_db.save()
+
+
+def get_assignments(course_name):
+    """Returns a list of assignments names given their course."""
+    assignments = models.Assignment.objects.all().filter(course__name=course_name).values('name')
+    return assignments

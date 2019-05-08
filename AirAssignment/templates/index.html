@@ -132,7 +132,6 @@
 
         <!-- Begin Page Content -->
         <div class="container-fluid">
-
           <!-- Page Heading -->
           <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
@@ -147,6 +146,10 @@
                   <h6 class="m-0 font-weight-bold text-primary">Courses</h6>
                 </div>
                 <div id="courses_div" class="card-body">
+                    {% for course in request.session.courses %}
+                      <a href="#">{{ course.name }}</a>
+                      <br><br>
+                    {% endfor %}
                   </div>
                 </div>
               </div>
@@ -235,7 +238,7 @@
         })
     }
     $(document).ready(function () {
-        getCourses();
+        //getCourses();
     })
 </script>
 </html>

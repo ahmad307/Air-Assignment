@@ -31,10 +31,10 @@ def register(request):
     return login(request)
 
 
-def get_courses(request):
-    username = request.GET['username']
+def get_courses(username):
+    """Returns name and code list of the given user's courses."""
     courses = models.Course.objects.filter(users__user__username=username).values('name', 'code')
-    return HttpResponse(json.dumps({'courses': list(courses)}), content_type=DjangoJSONEncoder)
+    return courses
 
 
 def login(request):
@@ -49,6 +49,9 @@ def login(request):
         # Check if user account is active
         if user.is_active:
             auth.login(request, user)
+            courses = get_courses(user.username)
+            request.session['courses'] = list(courses)
+            request.session.modified = True
             return render(request, 'index.html')
         else:
             return HttpResponse('Inactive account.')

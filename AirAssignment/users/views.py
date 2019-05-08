@@ -1,5 +1,5 @@
 from django.shortcuts import render, HttpResponse, Http404
-from users import forms
+from users import forms, models
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 import json
@@ -23,11 +23,18 @@ def register(request):
         user.save()
 
         profile = profile_form.save(commit=False)
-        profile.User = user
+        profile.user = user
         profile.save()
 
     # Log the new user in
     return login(request)
+
+
+def get_courses(username):
+    user = models.User.objects.all().filter(username=username)
+    user = models.UserProfile.objects.all().filter(user=user)
+    print(user.Courses)
+    return user.Courses
 
 
 def login(request):
@@ -42,6 +49,7 @@ def login(request):
         # Check if user account is active
         if user.is_active:
             auth.login(request, user)
+            #courses = get_courses(user.username)
             return render(request, 'index.html')
         else:
             return HttpResponse('Inactive account.')

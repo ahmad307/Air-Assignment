@@ -28,8 +28,7 @@
                 'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
             },
             success: function () {
-                // TODO: Not working
-                Window.location.href = "{% url 'users:register' %}";
+                window.location.href = "{% url 'users:index' %}";
             },
             error: function (json) {
                 $('#login_msg').val(json['error'])

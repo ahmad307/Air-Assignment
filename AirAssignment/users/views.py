@@ -31,12 +31,6 @@ def register(request):
     return login(request)
 
 
-def get_courses(username):
-    """Returns name and code list of the given user's courses."""
-    courses = models.Course.objects.filter(users__user__username=username).values('name', 'code')
-    return courses
-
-
 def login(request):
     if request.method != 'POST':
         return render(request, 'login.html')
@@ -63,3 +57,27 @@ def login(request):
 def logout(request):
     auth.logout(request)
     return render(request, 'login.html')
+
+
+"""
+Helper Methods
+"""
+def get_courses(username):
+    """Returns name and code list of the given user's courses."""
+    courses = models.Course.objects.filter(users__user__username=username).values('name', 'code')
+    return courses
+
+
+def join_course(request):
+    username = request.POST['username']
+    course_code = request.POST['course_code']
+    course_object = models.Course.objects.get(code=course_code)
+    user_object = models.UserProfile.objects.get(user__username=username)
+
+    if user_object.type != 'student':
+        return Http404
+
+    course_object.users.add(user_object)
+    course_object.save()
+    return HttpResponse(json.dumps({'message': 'success'}),
+                        content_type='application/json')

@@ -150,6 +150,7 @@
                 <div id="assignments_div" class="card-body">
                     {% for assignment in request.session.assignments %}
                       <a href="#">{{ assignment.name }}</a>
+                      <input placeholder="Enter Your Submission" class="form-control">
                       <br><br>
                     {% endfor %}
                   </div>

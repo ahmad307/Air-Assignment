@@ -10,6 +10,17 @@ def index(request):
     return render(request, 'index.html')
 
 
+def get_index(request):
+    username = request.GET['name']
+    courses = get_courses(username)
+    request.session['courses'] = list(courses)
+
+    user_type = models.UserProfile.objects.get(user__username=username).type
+    request.session['user_type'] = user_type
+
+    request.session.modified = True
+    return render(request, 'index.html')
+
 def register(request):
     """Adds a new user by saving and linking User and UserProfile forms."""
     if request.method != 'POST':

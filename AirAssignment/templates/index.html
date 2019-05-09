@@ -41,7 +41,7 @@
 
       <!-- Nav Item - Dashboard -->
       <li class="nav-item active">
-        <a class="nav-link" href="index.html">
+        <a class="nav-link" href="#">
           <i class="fas fa-fw fa-tachometer-alt"></i>
           <span>Home</span></a>
       </li>
@@ -298,6 +298,7 @@
                     window.alert('Course Joined.');
 
                     //TODO: page should reload with new course
+                    window.location.href = '/users/get_index?name={{ user.username }}';
                     // dont forget '' arround url
                   //  window.location.href = {# {% url "users:index" username=user.username %} #}+
                     //'&csrfmiddlewaretoken=' + $('input[name="csrfmiddlewaretoken"]').val();
@@ -321,6 +322,7 @@
                     $('#cancelAdd').click();
                     window.alert('Course Added.\n' + 'Code: ' + json['code']);
                     //TODO: page should reload with new course
+                    window.location.href = '/users/get_index?name={{ user.username }}';
                 },
                 error: function (e) {
                     console.log(e);

@@ -134,7 +134,8 @@
         <div class="container-fluid">
           <!-- Page Heading -->
           <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+            <h1 class="h3 mb-0 text-gray-800">{{ request.session.course_name }}</h1>
+            <h4>Code: {{ request.session.course_code }}</h4>
             {% if request.session.user_type == 'instructor' %}
                 <button data-toggle="modal" data-target="#addAssignmentModal" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-sign-in-alt fa-sm text-white-50"></i> Add Assignment</button>
             {% endif %}
@@ -150,7 +151,6 @@
                 <div id="assignments_div" class="card-body">
                     {% for assignment in request.session.assignments %}
                       <a href="#">{{ assignment.name }}</a>
-                      <input placeholder="Enter Your Submission" class="form-control">
                       <br><br>
                     {% endfor %}
                   </div>

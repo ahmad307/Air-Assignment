@@ -11,6 +11,7 @@ def index(request):
 
 
 def get_index(request):
+    """Returns the index page for a certain user."""
     username = request.GET['name']
     courses = get_courses(username)
     request.session['courses'] = list(courses)
@@ -20,6 +21,7 @@ def get_index(request):
 
     request.session.modified = True
     return render(request, 'index.html')
+
 
 def register(request):
     """Adds a new user by saving and linking User and UserProfile forms."""
@@ -82,6 +84,7 @@ def course(request):
 
     request.session['assignments'] = list(assignments)
     request.session['course_name'] = course_name
+    request.session['course_code'] = models.Course.objects.get(name=course_name).code
 
     username = request.GET['username']
     user_type = models.UserProfile.objects.get(user__username=username).type

@@ -150,7 +150,12 @@
                 </div>
                 <div id="assignments_div" class="card-body">
                     {% for assignment in request.session.assignments %}
-                      <a href="#">{{ assignment.name }}</a>
+                        {# Handle assignment href separately #}
+                        {% if request.session.user_type == 'instructor' %}
+                            <a href="/users/assignment_instructor?name={{ assignment.name }}&course={{ request.session.course_name }}">{{ assignment.name }}</a>
+                        {% else %}
+                            <a href="/users/assignment_student?name={{ assignment.name }}&course={{ request.session.course_name }}">{{ assignment.name }}</a>
+                        {% endif %}
                       <br><br>
                     {% endfor %}
                   </div>
@@ -255,7 +260,9 @@
                 success: function () {
                     $('#cancelAdd').click();
                     window.alert('Assignment Added.');
-                    //TODO: page should reload with new assignment
+                    window.location.href = '/users/course?' +
+                                            'course_name={{ request.session.course_name }}' +
+                                            '&username={{ user.username }}';
                 },
                 error: function () {
                     window.alert('Invalid Info.');

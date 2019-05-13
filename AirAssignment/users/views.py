@@ -93,9 +93,33 @@ def course(request):
     request.session.modified = True
     return render(request, 'course.html')
 
+
+def assignment_instructor(request):
+    """Returns an instructor's assignment page with all student submissions."""
+    assignment_name = request.GET['name']
+    course_name = request.GET['course']
+
+    # Match submission with assignment object to avoid overlapping
+    # assignment names
+    assignment = models.Assignment.objects.get(name=assignment_name,
+                                               course__name=course_name)
+    submissions = models.Submission.objects.filter(assignment=assignment)
+
+    submission_response = []
+    for submission in submissions:
+        submission_response.append({
+             'username': submission.user.user.username,
+             'grade': submission.grade})
+
+    request.session['submissions'] = submission_response
+    request.session.modified = True
+    return render(request, 'assignment_instructor.html')
+
+
 """
 Helper Methods
 """
+
 def get_courses(username):
     """Returns name and code list of the given user's courses."""
     courses = models.Course.objects.filter(users__user__username=username).values('name', 'code')

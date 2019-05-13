@@ -41,7 +41,7 @@
 
       <!-- Nav Item - Dashboard -->
       <li class="nav-item active">
-        <a class="nav-link" href="#">
+        <a class="nav-link" href="index.html">
           <i class="fas fa-fw fa-tachometer-alt"></i>
           <span>Home</span></a>
       </li>
@@ -105,7 +105,7 @@
                 </form>
               </div>
             </li>
-              
+
             <div class="topbar-divider d-none d-sm-block"></div>
 
             <!-- Nav Item - User Information -->
@@ -134,12 +134,7 @@
         <div class="container-fluid">
           <!-- Page Heading -->
           <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
-            {% if request.session.user_type == 'student' %}
-                <button data-toggle="modal" data-target="#joinCourseModal" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-sign-in-alt fa-sm text-white-50"></i> Join Course</button>
-             {% else %}
-                <button data-toggle="modal" data-target="#addCourseModal" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-sign-in-alt fa-sm text-white-50"></i> Add Course</button>
-            {% endif %}
+            <h1 class="h3 mb-0 text-gray-800">{{ request.session.course_name }} : {{ request.session.assignment_name }}</h1>
           </div>
           <!-- Content Row -->
           <div class="row">
@@ -147,11 +142,11 @@
               <!-- Project Card Example -->
               <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                  <h6 class="m-0 font-weight-bold text-primary">Courses</h6>
+                  <h6 class="m-0 font-weight-bold text-primary">Submissions</h6>
                 </div>
-                <div id="courses_div" class="card-body">
-                    {% for course in request.session.courses %}
-                      <a href="/users/course?course_name={{ course.name }}&username={{ user.username }}">{{ course.name }}</a>
+                <div id="assignments_div" class="card-body">
+                    {% for submission in request.session.submissions %}
+                      <a href="#">{{ submission.username }}'s Submission</a>
                       <br><br>
                     {% endfor %}
                   </div>
@@ -203,44 +198,28 @@
     </div>
   </div>
 
-  <!-- Join Course Modal -->
-  <div class="modal fade" id="joinCourseModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <!-- Add Assignment Modal -->
+  <div class="modal fade" id="addAssignmentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Enter Your Course Code</h5>
+          <h5 class="modal-title" id="exampleModalLabel">Assignment Info</h5>
           <button class="close" type="button" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">×</span>
           </button>
         </div>
         <div class="modal-body">
-            <input id="courseCode" type="text" placeholder="Course Code" class="form-control">
+            <label for="assignmentName">Assignment</label>
+            <input id="assignmentName" type="text" placeholder="Title" class="form-control"><br>
+            <label for="courseName">Course</label>
+            <input id="courseName" type="text" value="{{ request.session.course_name }}" class="form-control" readonly><br>
+            <label for="assignmentDeadline>">Deadline</label>
+            <input id="assignmentDeadline" type="date" class="form-control">
             {% csrf_token %}
         </div>
         <div class="modal-footer">
-          <button id="cancelJoin" class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-          <a id="joinCourseBtn" class="btn btn-primary" href="#">Join Course</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Add Course Modal -->
-  <div class="modal fade" id="addCourseModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Enter Your Course Info</h5>
-          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">×</span>
-          </button>
-        </div>
-        <div class="modal-body">
-            <input id="courseName" type="text" placeholder="Course Name" class="form-control">
-        </div>
-        <div class="modal-footer">
           <button id="cancelAdd" class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-          <a id="addCourseBtn" class="btn btn-primary" href="#">Add Course</a>
+          <a id="addAssignmentBtn" class="btn btn-primary" href="#">Add</a>
         </div>
       </div>
     </div>
@@ -258,73 +237,7 @@
 
 </body>
 <script type="text/javascript">
-    function getCourses(){
-        /* Not Used */
-        $.ajax({
-            url: '{% url 'users:get_courses' %}',
-            type: 'GET',
-            data: {'username': '{{ user.username }}'},
-            success: function (json) {
-                console.log(json);
-                let courses = json["courses"];
-                for (let i = 0; i < courses.length; i++){
-                    const hiddenField = "<input id='" + i +"' value='" +
-                        courses[i]['code'] + "' hidden>";
-                    const hField = "<a href='#' id=" + i + ">" + courses[i]['name'] + "</a>";
-                    $('#courses_div').append(hiddenField);
-                    $('#courses_div').append(hField);
-                    $('#courses_div').append("<br><br>");
-                }
-            },
-            error: function () {
-                console.log("Error!");
-            }
-        })
-    }
     $(document).ready(function () {
-        $('#joinCourseBtn').on('click', function () {
-            const code = $('#courseCode').val();
-            console.log(code);
-            $.ajax({
-                url: '{% url "users:join_course" %}',
-                type: 'POST',
-                data: {
-                    'username': '{{ user.username }}',
-                    'course_code': code,
-                    'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
-                },
-                success: function () {
-                    $('#cancelJoin').click();
-                    window.alert('Course Joined.');
-                    window.location.href = '/users/get_index?name={{ user.username }}';
-                },
-                error: function () {
-                    window.alert('Invalid Info.');
-                }
-            });
-        });
-
-        $('#addCourseBtn').on('click', function () {
-            $.ajax({
-                url: '{% url "users:add_course" %}',
-                type: 'POST',
-                data: {
-                    'username': '{{ user.username }}',
-                    'course_name': $('#courseName').val(),
-                    'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
-                },
-                success: function (json) {
-                    $('#cancelAdd').click();
-                    window.alert('Course Added.\n' + 'Code: ' + json['code']);
-                    //TODO: page should reload with new course
-                    window.location.href = '/users/get_index?name={{ user.username }}';
-                },
-                error: function (e) {
-                    console.log(e);
-                    window.alert('Invalid Info.');
-                }
-            });
-        });
     })
 </script>
 </html>

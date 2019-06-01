@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from users import views
+from users import views, helper
 
 app_name = 'users'
 
@@ -11,7 +11,7 @@ urlpatterns = [
     url(r'^logout', views.logout, name='logout'),
     url(r'^course', views.course, name='course'),
     url(r'^assignment_instructor', views.assignment_instructor, name='assignment_instructor'),
-    url(r'^get_courses', views.get_courses, name='get_courses'),
+    url(r'^get_courses', helper.get_courses, name='get_courses'),
     url(r'^join_course', views.join_course, name='join_course'),
     url(r'^add_assignment', views.add_assignment, name='add_assignment'),
     url(r'^add_course', views.add_course, name='add_course')

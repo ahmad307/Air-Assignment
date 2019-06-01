@@ -1,9 +1,9 @@
 from django.shortcuts import render, HttpResponse, Http404
-from users import forms, models
+from users import forms, models, helper
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
-import json
 from datetime import datetime
+import json
 
 
 def index(request):
@@ -11,9 +11,9 @@ def index(request):
 
 
 def get_index(request):
-    """Returns the index page for a certain user."""
+    """Returns index page for a certain user."""
     username = request.GET['name']
-    courses = get_courses(username)
+    courses = helper.get_courses(username)
     request.session['courses'] = list(courses)
 
     user_type = models.UserProfile.objects.get(user__username=username).type
@@ -24,7 +24,7 @@ def get_index(request):
 
 
 def register(request):
-    """Adds a new user by saving and linking User and UserProfile forms."""
+    """Returns registration page and adds a new user to database."""
     if request.method != 'POST':
         return render(request, 'register.html')
 
@@ -45,6 +45,7 @@ def register(request):
 
 
 def login(request):
+    """Returns login page."""
     if request.method != 'POST':
         return render(request, 'login.html')
 
@@ -57,7 +58,7 @@ def login(request):
         if user.is_active:
             auth.login(request, user)
 
-            courses = get_courses(user.username)
+            courses = helper.get_courses(user.username)
             request.session['courses'] = list(courses)
 
             user_type = models.UserProfile.objects.get(user=user).type
@@ -78,9 +79,9 @@ def logout(request):
 
 
 def course(request):
-    """Redirects to course page given its name and returns its assignments list."""
+    """Returns course page given its name and returns its assignments list."""
     course_name = request.GET['course_name']
-    assignments = get_assignments(course_name)
+    assignments = helper.get_assignments(course_name)
 
     request.session['assignments'] = list(assignments)
     request.session['course_name'] = course_name
@@ -112,21 +113,13 @@ def assignment_instructor(request):
              'grade': submission.grade})
 
     request.session['submissions'] = submission_response
+    request.session['assignment_name'] = assignment_name
     request.session.modified = True
     return render(request, 'assignment_instructor.html')
 
 
-"""
-Helper Methods
-"""
-
-def get_courses(username):
-    """Returns name and code list of the given user's courses."""
-    courses = models.Course.objects.filter(users__user__username=username).values('name', 'code')
-    return courses
-
-
 def join_course(request):
+    """Adds a student to a course given student username and course code."""
     username = request.POST['username']
     course_code = request.POST['course_code']
     course_object = models.Course.objects.get(code=course_code)
@@ -157,17 +150,8 @@ def add_assignment(request):
     return HttpResponse('ok')
 
 
-def get_assignments(course_name):
-    """Returns a list of assignments names given their course."""
-    assignments = models.Assignment.objects.all().filter(course__name=course_name).values('name')
-    return assignments
-
-
-def get_next_course_code():
-    return int(models.Course.objects.latest('code').code) + 1
-
-
 def add_course(request):
+    """Adds a new course given name and instructor username."""
     user_name = request.POST['username']
     user_in_db = models.UserProfile.objects.get(user__username=user_name)
     # Ensure course is added by an instructor
@@ -175,7 +159,7 @@ def add_course(request):
         return HttpResponse("Invalid User Type")
 
     course_name = request.POST['course_name']
-    course_code = get_next_course_code()
+    course_code = helper.get_next_course_code()
 
     if models.Course.objects.all().filter(code=course_code):
         return HttpResponse('Unique Constraint Violated.')

@@ -146,7 +146,11 @@
                 </div>
                 <div id="assignments_div" class="card-body">
                     {% for submission in request.session.submissions %}
-                      <a href="#">{{ submission.username }}'s Submission</a>
+                      <div class="row">
+                        <a href="#">{{ submission.username }}'s Submission</a>
+                        &nbsp;&nbsp;&nbsp;
+                        <input type="text" placeholder="{{ submission.grade }}" class="form-control" style="width: 70px;height: 30px;float: right">
+                      </div>
                       <br><br>
                     {% endfor %}
                   </div>

@@ -13,7 +13,7 @@ class UserProfile(models.Model):
 
 class Course(models.Model):
     name = models.CharField(max_length=50)
-    code = models.CharField(max_length=8)
+    code = models.CharField(max_length=8, unique=True)
     users = models.ManyToManyField(UserProfile, null=True)
 
     def __str__(self):
@@ -21,6 +21,7 @@ class Course(models.Model):
 
 
 class Assignment(models.Model):
+    # TODO: Set PK (name = unique?)
     name = models.CharField(max_length=50)
     deadline = models.DateTimeField(auto_now_add=False, editable=True, default=datetime.now())
     course = models.ForeignKey(Course)
@@ -33,6 +34,10 @@ class Submission(models.Model):
     assignment = models.ForeignKey(Assignment)
     user = models.ForeignKey(UserProfile)
     grade = models.IntegerField(null=True, blank=True)
+    file = models.FileField(null=True)
+
+    class Meta:
+        unique_together = (('assignment', 'user'),)
 
     def __str__(self):
         return self.user.user.username + "'s " + self.assignment.name + " Submission"

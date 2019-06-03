@@ -1,4 +1,5 @@
 from django.shortcuts import render, HttpResponse, Http404
+from django.http import FileResponse
 from users import forms, models, helper
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
@@ -170,3 +171,13 @@ def add_course(request):
 
     return HttpResponse(json.dumps({'code': course_code}),
                         content_type='application/json')
+
+
+def get_submission_file(request):
+    course_code = request.GET['code']
+    assignment = request.GET['assignment']
+    username = request.GET['username']
+    path = 'static/assignments/' + course_code \
+           + '/' + assignment + '/' + username + '.pdf'
+
+    return FileResponse(open(path, 'rb'), content_type='application/pdf')

@@ -147,8 +147,11 @@
                 <div id="assignments_div" class="card-body">
                     {% for submission in request.session.submissions %}
                       <div class="row">
-                        <a href="#">{{ submission.username }}'s Submission</a>
-                        &nbsp;&nbsp;&nbsp;
+                        <a
+                            href="/users/get_submission_file?username={{ submission.username }}&code={{ request.session.course_code }}&assignment={{ request.session.assignment_name }}">
+                            {{ submission.username }}'s Submission
+                        </a>
+                        &nbsp;
                         <input type="text" placeholder="{{ submission.grade }}" class="form-control" style="width: 70px;height: 30px;float: right">
                       </div>
                       <br><br>

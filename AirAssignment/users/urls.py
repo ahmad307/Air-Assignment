@@ -14,5 +14,6 @@ urlpatterns = [
     url(r'^get_courses', helper.get_courses, name='get_courses'),
     url(r'^join_course', views.join_course, name='join_course'),
     url(r'^add_assignment', views.add_assignment, name='add_assignment'),
-    url(r'^add_course', views.add_course, name='add_course')
+    url(r'^add_course', views.add_course, name='add_course'),
+    url(r'^get_submission_file', views.get_submission_file, name='get_submission_file')
 ]

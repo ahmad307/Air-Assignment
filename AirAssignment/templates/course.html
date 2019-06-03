@@ -150,11 +150,11 @@
                 </div>
                 <div id="assignments_div" class="card-body">
                     {% for assignment in request.session.assignments %}
-                        {# Handle assignment href separately #}
+                        {# Handle assignment href separately for instructor and student #}
                         {% if request.session.user_type == 'instructor' %}
                             <a href="/users/assignment_instructor?name={{ assignment.name }}&course={{ request.session.course_name }}">{{ assignment.name }}</a>
                         {% else %}
-                            <a href="/users/assignment_student?name={{ assignment.name }}&course={{ request.session.course_name }}">{{ assignment.name }}</a>
+                            <a data-toggle="modal" data-target="#addSubmissionModal">{{ assignment.name }}</a>
                         {% endif %}
                       <br><br>
                     {% endfor %}
@@ -234,6 +234,38 @@
     </div>
   </div>
 
+  <!-- Add Submission Modal -->
+  <div class="modal fade" id="addSubmissionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Submission Info</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <form action="{% url 'users:add_submission' %}" method="POST" enctype="multipart/form-data">
+          <div class="modal-body">
+            <label for="submissionFile">Submission File</label>
+            <input id="submissionFile" name="submissionFile" type="file" class="form-control"><br>
+            <select name="assignmentName">
+              {% for assignment in request.session.assignments %}
+                <option>{{ assignment.name }}</option>
+              {% endfor %}
+            </select>
+            <input name="username" type="text" value="{{ user.username }}" hidden>
+            <input name="courseName" type="text" value="{{ request.session.course_name }}" hidden>
+            {% csrf_token %}
+          </div>
+          <div class="modal-footer">
+            <button id="cancelAdd" class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+            <button id="addSubmissionBtn" type="submit" class="btn btn-primary" href="#">Submit</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <!-- Bootstrap core JavaScript-->
   <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
   <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
@@ -268,7 +300,26 @@
                     window.alert('Invalid Info.');
                 }
             });
-        })
+        });
+
+        $('#addSubmissionBtns').on('click', function () {
+            console.log($('#submissionFile'));
+            $.ajax({
+                type: 'POST',
+                url: '{% url "users:add_submission" %}',
+                enctype : 'multipart/form-data',
+                data: {
+                    'file': $('#submissionFile'),
+                    'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
+                },
+                success: function () {
+                    console.log('success!');
+                },
+                error: function () {
+                    console.log('Error!');
+                }
+            });
+        });
     })
 </script>
 </html>

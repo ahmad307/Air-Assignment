@@ -3,6 +3,7 @@ from django.http import FileResponse
 from users import forms, models, helper
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
+from django.db.utils import IntegrityError
 from datetime import datetime
 import json
 
@@ -174,6 +175,7 @@ def add_course(request):
 
 
 def get_submission_file(request):
+    # TODO: Suddenly stopped working, returns empty pdf
     course_code = request.GET['code']
     assignment = request.GET['assignment']
     username = request.GET['username']
@@ -181,3 +183,24 @@ def get_submission_file(request):
            + '/' + assignment + '/' + username + '.pdf'
 
     return FileResponse(open(path, 'rb'), content_type='application/pdf')
+
+
+def add_submission(request):
+    file = request.FILES['submissionFile']
+    username = request.POST['username']
+    assignment_name = request.POST['assignmentName']
+    course_name = request.POST['courseName']
+
+    assignment = models.Assignment.objects.get(name=assignment_name,
+                                               course__name=course_name)
+    user = models.UserProfile.objects.get(user__username=username)
+
+    submission = models.Submission.objects.create(assignment=assignment,
+                                                  user=user,
+                                                  file=file)
+    try:
+        submission.save()
+    except IntegrityError:
+        return HttpResponse('Submission already existing for this assignment')
+
+    return HttpResponse('Submission Added')

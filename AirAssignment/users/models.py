@@ -41,7 +41,7 @@ def get_submission_path(instance, filename):
 
 
 class Submission(models.Model):
-    # TODO: Delete doesn't the files from static directory
+    # TODO: Delete doesn't remove the files from static directory
     assignment = models.ForeignKey(Assignment)
     user = models.ForeignKey(UserProfile)
     grade = models.IntegerField(null=True, blank=True)

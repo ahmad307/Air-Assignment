@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from datetime import datetime
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 
 
 class UserProfile(models.Model):
@@ -52,3 +54,8 @@ class Submission(models.Model):
 
     def __str__(self):
         return self.user.user.username + "'s " + self.assignment.name + " Submission"
+
+
+@receiver(post_delete, sender=Submission)
+def submission_delete(sender, instance, **kwargs):
+    instance.file.delete(False)

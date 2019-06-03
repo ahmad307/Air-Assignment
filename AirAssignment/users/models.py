@@ -21,7 +21,7 @@ class Course(models.Model):
 
 
 class Assignment(models.Model):
-    # TODO: Set PK (name = unique?)
+    # TODO: Set PK (name = unique?/course with name?)
     name = models.CharField(max_length=50)
     deadline = models.DateTimeField(auto_now_add=False, editable=True, default=datetime.now())
     course = models.ForeignKey(Course)
@@ -30,11 +30,22 @@ class Assignment(models.Model):
         return self.name
 
 
+def get_submission_path(instance, filename):
+    """Creates file directory path based on course and assignment."""
+    _, extension = filename.split('.')
+    return 'static/assignments/' \
+           + instance.assignment.course.code + '/' \
+           + instance.assignment.name + '/' \
+           + instance.user.user.username \
+           + '.' + extension
+
+
 class Submission(models.Model):
+    # TODO: Delete doesn't the files from static directory
     assignment = models.ForeignKey(Assignment)
     user = models.ForeignKey(UserProfile)
     grade = models.IntegerField(null=True, blank=True)
-    file = models.FileField(null=True)
+    file = models.FileField(null=True, upload_to=get_submission_path)
 
     class Meta:
         unique_together = (('assignment', 'user'),)

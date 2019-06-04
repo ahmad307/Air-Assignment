@@ -246,13 +246,16 @@
         </div>
         <form action="{% url 'users:add_submission' %}" method="POST" enctype="multipart/form-data">
           <div class="modal-body">
-            <label for="submissionFile">Submission File</label>
-            <input id="submissionFile" name="submissionFile" type="file" class="form-control"><br>
-            <select name="assignmentName">
+            <label for="assignmentName">Assignment</label>
+            <select name="assignmentName" class="form-control">
               {% for assignment in request.session.assignments %}
                 <option>{{ assignment.name }}</option>
               {% endfor %}
             </select>
+            <br>
+            <label for="submissionFile">Submission File</label>
+            <br>
+            <input id="submissionFile" name="submissionFile" type="file">
             <input id="username" name="username" type="text" value="{{ user.username }}" hidden>
             <input id="courseName" name="courseName" type="text" value="{{ request.session.course_name }}" hidden>
             {% csrf_token %}

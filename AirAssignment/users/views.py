@@ -8,6 +8,8 @@ from django.db.utils import IntegrityError
 from datetime import datetime
 import json
 
+# TODO: Return appropriate error instead of Http404
+
 
 def index(request):
     return render(request, 'index.html')
@@ -190,6 +192,7 @@ def get_submission_file(request):
 
 
 def add_submission(request):
+    # TODO: Prevent submissions after deadline
     file = request.FILES['submissionFile']
     username = request.POST['username']
     assignment_name = request.POST['assignmentName']

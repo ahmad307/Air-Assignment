@@ -19,7 +19,7 @@ $(document).ready(function () {
                                         $('#username').val();
             },
             error: function () {
-                window.alert('Invalid Info.');
+                window.alert('Invalid info.');
             }
         });
     });

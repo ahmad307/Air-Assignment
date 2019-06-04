@@ -3,6 +3,7 @@ from django.http import FileResponse
 from users import forms, models, helper
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError, PermissionDenied
 from django.db.utils import IntegrityError
 from datetime import datetime
 import json
@@ -143,10 +144,13 @@ def add_assignment(request):
     course_name = request.POST['course_name']
     course = models.Course.objects.get(name__exact=course_name)
 
-    assignment = models.Assignment.objects.create(
-        name=assignment_name,
-        deadline=datetime.strptime(assignment_deadline, '%Y-%m-%d'),
-        course=course)
+    try:
+        assignment = models.Assignment.objects.create(
+            name=assignment_name,
+            deadline=datetime.strptime(assignment_deadline, '%Y-%m-%d'),
+            course=course)
+    except IntegrityError:
+        raise ValidationError('Assignment name used')
     assignment.save()
 
     return HttpResponse('ok')
@@ -169,7 +173,7 @@ def add_course(request):
     course_in_db = models.Course.objects.create(name=course_name, code=course_code)
     course_in_db.users.add(user_in_db)
     course_in_db.save()
-    print('course code', course_code)
+
     return HttpResponse(json.dumps({'code': course_code}),
                         content_type='application/json')
 
@@ -195,12 +199,12 @@ def add_submission(request):
                                                course__name=course_name)
     user = models.UserProfile.objects.get(user__username=username)
 
-    submission = models.Submission.objects.create(assignment=assignment,
-                                                  user=user,
-                                                  file=file)
     try:
-        submission.save()
+        submission = models.Submission.objects.create(assignment=assignment,
+                                                      user=user,
+                                                      file=file)
     except IntegrityError:
         return HttpResponse('Submission already existing for this assignment')
+    submission.save()
 
     return HttpResponse('Submission Added')

@@ -23,10 +23,12 @@ class Course(models.Model):
 
 
 class Assignment(models.Model):
-    # TODO: Set PK (name = unique?/course with name?)
     name = models.CharField(max_length=50)
     deadline = models.DateTimeField(auto_now_add=False, editable=True, default=datetime.now())
     course = models.ForeignKey(Course)
+
+    class Meta:
+        unique_together = (('name', 'course'),)
 
     def __str__(self):
         return self.name
@@ -43,7 +45,6 @@ def get_submission_path(instance, filename):
 
 
 class Submission(models.Model):
-    # TODO: Delete doesn't remove the files from static directory
     assignment = models.ForeignKey(Assignment)
     user = models.ForeignKey(UserProfile)
     grade = models.IntegerField(null=True, blank=True)

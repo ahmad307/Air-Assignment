@@ -1,1 +1,9 @@
-AirAssignment/static/* linguist-vendored=true
+AirAssignment/static/scss/* linguist-vendored=true
+
+AirAssignment/static/js/* linguist-vendored=true
+
+AirAssignment/static/img/* linguist-vendored=true
+
+AirAssignment/static/css/* linguist-vendored=true
+
+AirAssignment/static/vendor/* linguist-vendored=true

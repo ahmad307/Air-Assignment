@@ -158,18 +158,18 @@ def add_course(request):
     user_in_db = models.UserProfile.objects.get(user__username=user_name)
     # Ensure course is added by an instructor
     if user_in_db.type != 'instructor':
-        return HttpResponse("Invalid User Type")
+        return Http404("Invalid User Type")
 
     course_name = request.POST['course_name']
     course_code = helper.get_next_course_code()
 
     if models.Course.objects.all().filter(code=course_code):
-        return HttpResponse('Unique Constraint Violated.')
+        return Http404('Unique Constraint Violated.')
 
     course_in_db = models.Course.objects.create(name=course_name, code=course_code)
     course_in_db.users.add(user_in_db)
     course_in_db.save()
-
+    print('course code', course_code)
     return HttpResponse(json.dumps({'code': course_code}),
                         content_type='application/json')
 

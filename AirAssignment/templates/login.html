@@ -87,25 +87,8 @@
   <!-- Custom scripts for all pages-->
   <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
 
+  <!-- Custom script for this template -->
+  <script type="text/javascript" src="{% static 'users/login.js' %}"></script>
+
 </body>
-<script type="text/javascript">
-    $('#login_form').on('submit', function (e) {
-        e.preventDefault();
-        $.ajax({
-            url: '/users/login',
-            type: 'POST',
-            data: {
-                'username': $('#username').val(),
-                'password': $('#password').val(),
-                'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
-            },
-            success: function () {
-                window.location.href = "{% url 'users:index' %}";
-            },
-            error: function () {
-                window.alert("Invalid Info!");
-            }
-        });
-    });
-</script>
 </html>

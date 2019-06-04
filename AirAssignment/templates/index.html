@@ -246,6 +246,10 @@
     </div>
   </div>
 
+  <!-- Used by index.js -->
+  <input id="username" type="text" value="{{ user.username }}" hidden>
+
+
   <!-- Bootstrap core JavaScript-->
   <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
   <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
@@ -256,75 +260,8 @@
   <!-- Custom scripts for all pages-->
   <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
 
-</body>
-<script type="text/javascript">
-    function getCourses(){
-        /* Not Used */
-        $.ajax({
-            url: '{% url 'users:get_courses' %}',
-            type: 'GET',
-            data: {'username': '{{ user.username }}'},
-            success: function (json) {
-                console.log(json);
-                let courses = json["courses"];
-                for (let i = 0; i < courses.length; i++){
-                    const hiddenField = "<input id='" + i +"' value='" +
-                        courses[i]['code'] + "' hidden>";
-                    const hField = "<a href='#' id=" + i + ">" + courses[i]['name'] + "</a>";
-                    $('#courses_div').append(hiddenField);
-                    $('#courses_div').append(hField);
-                    $('#courses_div').append("<br><br>");
-                }
-            },
-            error: function () {
-                console.log("Error!");
-            }
-        })
-    }
-    $(document).ready(function () {
-        $('#joinCourseBtn').on('click', function () {
-            const code = $('#courseCode').val();
-            console.log(code);
-            $.ajax({
-                url: '{% url "users:join_course" %}',
-                type: 'POST',
-                data: {
-                    'username': '{{ user.username }}',
-                    'course_code': code,
-                    'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
-                },
-                success: function () {
-                    $('#cancelJoin').click();
-                    window.alert('Course Joined.');
-                    window.location.href = '/users/get_index?name={{ user.username }}';
-                },
-                error: function () {
-                    window.alert('Invalid Info.');
-                }
-            });
-        });
+  <!-- Custom scripts for this template-->
+  <script type="text/javascript" src="{% static 'users/index.js' %}"></script>
 
-        $('#addCourseBtn').on('click', function () {
-            $.ajax({
-                url: '{% url "users:add_course" %}',
-                type: 'POST',
-                data: {
-                    'username': '{{ user.username }}',
-                    'course_name': $('#courseName').val(),
-                    'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
-                },
-                success: function (json) {
-                    $('#cancelAdd').click();
-                    window.alert('Course Added.\n' + 'Code: ' + json['code']);
-                    //TODO: page should reload with new course
-                    window.location.href = '/users/get_index?name={{ user.username }}';
-                },
-                error: function (e) {
-                    console.log(e);
-                    window.alert('Invalid Info.');
-                }
-            });
-        });
-    })
-</script>
+</body>
 </html>

@@ -253,8 +253,8 @@
                 <option>{{ assignment.name }}</option>
               {% endfor %}
             </select>
-            <input name="username" type="text" value="{{ user.username }}" hidden>
-            <input name="courseName" type="text" value="{{ request.session.course_name }}" hidden>
+            <input id="username" name="username" type="text" value="{{ user.username }}" hidden>
+            <input id="courseName" name="courseName" type="text" value="{{ request.session.course_name }}" hidden>
             {% csrf_token %}
           </div>
           <div class="modal-footer">
@@ -276,50 +276,8 @@
   <!-- Custom scripts for all pages-->
   <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
 
-</body>
-<script type="text/javascript">
-    $(document).ready(function () {
-        $('#addAssignmentBtn').on('click', function () {
-            $.ajax({
-                url: '{% url "users:add_assignment" %}',
-                type: 'POST',
-                data: {
-                    'assignment_name': $('#assignmentName').val(),
-                    'course_name': $('#courseName').val(),
-                    'assignment_deadline': $('#assignmentDeadline').val(),
-                    'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
-                },
-                success: function () {
-                    $('#cancelAdd').click();
-                    window.alert('Assignment Added.');
-                    window.location.href = '/users/course?' +
-                                            'course_name={{ request.session.course_name }}' +
-                                            '&username={{ user.username }}';
-                },
-                error: function () {
-                    window.alert('Invalid Info.');
-                }
-            });
-        });
+  <!-- Custom script for this template-->
+  <script type="text/javascript" src="{% static 'users/course.js' %}"></script>
 
-        $('#addSubmissionBtns').on('click', function () {
-            console.log($('#submissionFile'));
-            $.ajax({
-                type: 'POST',
-                url: '{% url "users:add_submission" %}',
-                enctype : 'multipart/form-data',
-                data: {
-                    'file': $('#submissionFile'),
-                    'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val()
-                },
-                success: function () {
-                    console.log('success!');
-                },
-                error: function () {
-                    console.log('Error!');
-                }
-            });
-        });
-    })
-</script>
+</body>
 </html>

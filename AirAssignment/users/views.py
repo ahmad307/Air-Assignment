@@ -1,5 +1,5 @@
 from django.shortcuts import render, HttpResponse, Http404
-from django.http import FileResponse
+from django.http import FileResponse, JsonResponse
 from users import forms, models, helper
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
@@ -135,8 +135,7 @@ def join_course(request):
 
     course_object.users.add(user_object)
     course_object.save()
-    return HttpResponse(json.dumps({'message': 'success'}),
-                        content_type='application/json')
+    return JsonResponse({'message': 'success'})
 
 
 def add_assignment(request):
@@ -176,8 +175,7 @@ def add_course(request):
     course_in_db.users.add(user_in_db)
     course_in_db.save()
 
-    return HttpResponse(json.dumps({'code': course_code}),
-                        content_type='application/json')
+    return JsonResponse({'code': course_code})
 
 
 def get_submission_file(request):
